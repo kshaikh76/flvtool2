@@ -149,6 +149,7 @@ module FLV
       meta_tag['audiosamplesize'] = audiosamplesize
       meta_tag['cuePoints'] = cue_points
       meta_tag['keyframes'] = keyframes
+      meta_tag['seekpoints'] = seekpoints
       meta_tag['hasVideo'] = has_video?
       meta_tag['hasAudio'] = has_audio?
       meta_tag['hasMetadata'] = true
@@ -161,6 +162,7 @@ module FLV
 
       # recalculate values those need meta tag data size or presence
       meta_tag['keyframes'] = keyframes
+      meta_tag['seekpoints'] = seekpoints
       meta_tag['datasize'] = datasize
       meta_tag['filesize'] = filesize
       meta_tag['hasMetadata'] = has_meta_data?
@@ -372,6 +374,22 @@ module FLV
       
       return object
     end
+
+    def seekpoints
+      seekpoints = []
+      
+      calculate_tag_byte_offsets
+	  
+	  keyframe_video_tags.each do |video_tag|
+		object = Hash.new
+		object['time'] =  video_tag.timestamp/1000.0
+		object['offset'] = video_tag.byte_offset
+		seekpoints << object
+	  end
+      
+      return seekpoints
+    end
+
 
     def cue_points
       on_cue_point_tags.collect { |tag| tag.meta_data }
